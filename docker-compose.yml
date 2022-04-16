@@ -1,0 +1,38 @@
+version: '3.4'
+
+services:
+  db:
+    container_name: containers-teste-mysql
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1
+      MYSQL_DATABASE: dockertst
+      MYSQL_USER: gustavo
+      MYSQL_PASSWORD: gustavo
+    ports: 
+      - 3306:3306
+    expose:
+      - 3306
+    volumes:
+      - my-db:/var/lib/mysql
+      - ./_MySQL_Init_Script:/docker-entrypoint-initdb.d
+    #networks:
+    #  - network
+  dockeraplication.api:
+    depends_on:
+      - db
+    container_name: dockeraplication.api
+    image: ${DOCKER_REGISTRY-}dockeraplicationapi
+    build:
+      context: .
+      dockerfile: DockerAplication.Api/Dockerfile
+    ports:
+    - 8080:5000
+    environment:    
+    - ConnectionStrings__connection=server=db;port=3306;database=dockerdsv;uid=gustavo;pwd=gustavo;
+#networks:
+#  network:
+#   driver: bridge
+volumes:
+  my-db:
